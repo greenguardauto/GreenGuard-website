@@ -15,24 +15,29 @@ MISSION IMAGES (folder: assets/img/mission/)\
 \
 mission-market-1.0.jpg\
 Description: Visual graphic illustrating TAM/SAM/SOM:\
-- TAM: Total weed removal market\
-- SAM: Organic farms growing in Europe\
-- SOM: Organic carrots in N-Europe with 10% market share\
+- Grafisk billede der viser TAM/SAM/SOM for ukrudtsbekæmpelse:\
+- TAM: 43 mia. – det samlede globale marked for ukrudtsbekæmpelse.\
+- SAM: 2 mia. – økologiske og pesticidbegrænsede arealer i Europa i vækst.\
+- SOM: 17 mio. – fokussegment (f.eks. økologiske gulerødder og højværdiafgrøder i Nordeuropa med 10% markedsandel).\
+- Bruges i “Hvorfor os”-sektionen til at kommunikere, at problemet er stort, voksende og kommercielt attraktivt.\
 \
 mission-timeline-1.0.jpg\
 Description: Timeline from Q4 2025 to Q4 2027 showing:\
-- TRL4 prototype\
-- Field tests\
-- Pilot projects\
-- Investor phase\
-- Commercialization\
-- Market launch\
+- Dette billede viser GreenGuards mission-tidslinje fra Q4 2025 til Q4 2027.\
+- Milepæle:\
+- Q4 2025: TRL4 – første fuldt funktionelle prototype (laser + vision) klar til test.\
+- Q2 2026: Feltforsøg hos udvalgte landmænd, validering af performance i marken.\
+- Q3 2026: Større pilotprojekter med flere partnere og forskellige afgrøder.\
+- Q4 2026: Investor- og skaleringstrin, fokus på produktion og serieopbygning.\
+- Q2 2027: Kommercialisering og de første solgte enheder.\
+- Q4 2027: Skalering på tværs af Nordeuropa.\
+- Bruges i “Hvorfor os” sektionen til at illustrere, at GreenGuard har en tydelig plan fra prototype til marked.\
 \
 -------------------------------------------------------------------\
 SUPPORT LOGOS (folder: assets/img/support/)\
 -------------------------------------------------------------------\
 \
-support-odense-robotics-logo_1.0.png\
+support-odense-robotics-logo_1.1.png\
 Description: Logo for Odense Robotics. Used in partner/supporter section.\
 Link: https://www.odenserobotics.dk/\
 \
@@ -48,7 +53,7 @@ support-AgriFoodTure_logo-1.0.png\
 Description: AgriFoodTure logo. Used in partner/supporter section.\
 Link: https://agrifoodture.com/\
 \
-support-mikrolegat-logo-1.0.jpg\
+support-mikrolegat-logo-1.1.png\
 Description: Mikrolegat (FFE-fonden) logo. Used in partner/supporter section.\
 Link: https://mikrolegat.ffefonden.dk/\
 \

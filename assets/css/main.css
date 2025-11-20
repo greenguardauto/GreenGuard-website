@@ -4156,8 +4156,8 @@ section,
   background: #fff;
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 80%);
   border-radius: 14px;
-  padding: 20px;
-  height: 140px;
+  padding: 28px;
+  height: 200px;
   max-width: 100%;
   margin: 0 auto;
   transition: all 0.25s ease;
@@ -4165,19 +4165,19 @@ section,
 }
 
 .support-logo-card img {
-  max-height: 80px;
+  max-height: 140px;
   width: 100%;
   object-fit: contain;
 }
 
 .support-logo-lg {
-  max-width: 220px;
+  max-width: 320px;
 }
 
 .support-logo-sm {
-  max-width: 160px;
-  height: 120px;
-  padding: 18px;
+  max-width: 220px;
+  height: 160px;
+  padding: 20px;
 }
 
 .support-logo-card:hover {
