@@ -4187,6 +4187,8 @@ section,
 
 .milestone {
   transition: 0.25s ease;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
 }
 
 .milestone:hover {
@@ -4206,6 +4208,40 @@ section,
 
 svg text {
   font-family: 'Inter', sans-serif;
+}
+
+.roadmap-detail-box {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--surface-color);
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 70%);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+  padding: 18px 20px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.roadmap-detail-box.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.roadmap-detail-inner h5 {
+  color: var(--heading-color);
+}
+
+.roadmap-detail-inner p {
+  color: color-mix(in srgb, var(--default-color), transparent 15%);
+}
+
+.milestone .connector {
+  transition: opacity 0.2s ease;
+}
+
+.milestone.active .connector {
+  opacity: 1;
 }
 
 .support-logo-card:hover {

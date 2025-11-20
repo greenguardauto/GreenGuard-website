@@ -209,14 +209,26 @@
   document.addEventListener('scroll', navmenuScrollspy);
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.milestone').forEach((el) => {
-      el.addEventListener('click', () => {
-        const id = el.id.replace('ms', '');
-        const modal = document.getElementById('modal' + id);
-        if (modal) {
-          new bootstrap.Modal(modal).show();
-        }
-      });
+    const milestones = document.querySelectorAll('.gg-roadmap-container .milestone');
+    const detailBox = document.getElementById('roadmap-detail-box');
+    const detailTitle = document.getElementById('roadmap-detail-title');
+    const detailText = document.getElementById('roadmap-detail-text');
+
+    function activateMilestone(ms) {
+      milestones.forEach(item => item.classList.remove('active'));
+      ms.classList.add('active');
+
+      if (detailTitle && detailText && detailBox) {
+        detailTitle.textContent = ms.getAttribute('data-title') || '';
+        detailText.textContent = ms.getAttribute('data-text') || '';
+        detailBox.classList.remove('d-none');
+        detailBox.classList.add('active');
+      }
+    }
+
+    milestones.forEach(ms => {
+      ms.addEventListener('mouseenter', () => activateMilestone(ms));
+      ms.addEventListener('click', () => activateMilestone(ms));
     });
   });
 
