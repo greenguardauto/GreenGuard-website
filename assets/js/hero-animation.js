@@ -1,5 +1,5 @@
 /**
- * Interactive Hero Canvas Animation
+ * Interactive Hero Canvas Animation & Parallax
  * Precision Field Scanning - visualizing laser precision and detection
  */
 
@@ -8,234 +8,165 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const canvas = document.getElementById('heroCanvas');
-        if (!canvas) return;
+        const heroSection = document.getElementById('hero');
+        if (!canvas || !heroSection) return;
 
         const ctx = canvas.getContext('2d');
         let width, height;
-        let particles = [];
-        let gridLines = [];
-        let mouse = { x: null, y: null, radius: 120 };
+        let mouse = { x: null, y: null };
         let animationId;
 
-        // Resize canvas
+        // Configuration
+        const config = {
+            gridSpacing: 40,
+            gridColor: 'rgba(5, 150, 82, 0.15)', // GreenGuard Green
+            activeGridColor: 'rgba(5, 150, 82, 0.4)',
+            scanLineSpeed: 2,
+            spotlightRadius: 300,
+            parallaxStrength: 15
+        };
+
+        let scanLines = [];
+
+        // Resize canvas to cover the full hero section
         function resizeCanvas() {
-            const container = canvas.parentElement;
-            width = container.offsetWidth;
-            height = container.offsetWidth * 0.75; // 4:3 aspect ratio
+            width = heroSection.offsetWidth;
+            height = heroSection.offsetHeight;
             canvas.width = width;
             canvas.height = height;
-            initParticles();
-            initGrid();
+            initScanLines();
         }
 
-        // Particle class - represents detection points
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.size = Math.random() * 2 + 1;
-                this.baseX = x;
-                this.baseY = y;
-                this.density = Math.random() * 30 + 10;
-                this.distance = 0;
-                this.color = `rgba(225, 227, 222, ${Math.random() * 0.5 + 0.5})`;
-            }
-
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fill();
-            }
-
-            update() {
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                this.distance = Math.sqrt(dx * dx + dy * dy);
-
-                const forceDirectionX = dx / this.distance;
-                const forceDirectionY = dy / this.distance;
-                const maxDistance = mouse.radius;
-                const force = (maxDistance - this.distance) / maxDistance;
-                const directionX = forceDirectionX * force * this.density;
-                const directionY = forceDirectionY * force * this.density;
-
-                if (this.distance < mouse.radius) {
-                    this.x -= directionX;
-                    this.y -= directionY;
-                } else {
-                    if (this.x !== this.baseX) {
-                        let dx = this.x - this.baseX;
-                        this.x -= dx / 10;
-                    }
-                    if (this.y !== this.baseY) {
-                        let dy = this.y - this.baseY;
-                        this.y -= dy / 10;
-                    }
-                }
+        // Initialize scanning lines
+        function initScanLines() {
+            scanLines = [];
+            // Create horizontal scan lines
+            for (let y = 0; y < height; y += config.gridSpacing) {
+                scanLines.push({
+                    y: y,
+                    speed: Math.random() * 0.5 + 0.2,
+                    opacity: Math.random() * 0.3 + 0.1
+                });
             }
         }
 
-        // Grid line class - represents scanning grid
-        class GridLine {
-            constructor(isVertical, position) {
-                this.isVertical = isVertical;
-                this.position = position;
-                this.opacity = Math.random() * 0.3 + 0.1;
-                this.pulseSpeed = Math.random() * 0.02 + 0.01;
-                this.pulsePhase = Math.random() * Math.PI * 2;
-            }
+        // Draw the grid and effects
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
 
-            draw() {
-                this.pulsePhase += this.pulseSpeed;
-                const pulseFactor = Math.sin(this.pulsePhase) * 0.15 + 0.85;
-                ctx.strokeStyle = `rgba(120, 180, 120, ${this.opacity * pulseFactor})`;
-                ctx.lineWidth = 1;
+            // Draw subtle background grid
+            ctx.lineWidth = 1;
+
+            // Vertical lines
+            for (let x = 0; x < width; x += config.gridSpacing) {
+                const distToMouse = mouse.x ? Math.abs(x - mouse.x) : 1000;
+                const opacity = Math.max(0.05, 1 - distToMouse / config.spotlightRadius) * 0.2;
+
+                ctx.strokeStyle = `rgba(5, 150, 82, ${opacity})`;
                 ctx.beginPath();
-
-                if (this.isVertical) {
-                    ctx.moveTo(this.position, 0);
-                    ctx.lineTo(this.position, height);
-                } else {
-                    ctx.moveTo(0, this.position);
-                    ctx.lineTo(width, this.position);
-                }
-
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
                 ctx.stroke();
             }
-        }
 
-        // Initialize particles
-        function initParticles() {
-            particles = [];
-            const numberOfParticles = Math.floor((width * height) / 4000);
-            for (let i = 0; i < numberOfParticles; i++) {
-                const x = Math.random() * width;
-                const y = Math.random() * height;
-                particles.push(new Particle(x, y));
-            }
-        }
+            // Horizontal scanning lines
+            scanLines.forEach(line => {
+                line.y += line.speed;
+                if (line.y > height) line.y = 0;
 
-        // Initialize grid
-        function initGrid() {
-            gridLines = [];
-            const gridSpacing = 60;
-            for (let i = 0; i < width; i += gridSpacing) {
-                gridLines.push(new GridLine(true, i));
-            }
-            for (let i = 0; i < height; i += gridSpacing) {
-                gridLines.push(new GridLine(false, i));
-            }
-        }
+                const distToMouse = mouse.y ? Math.abs(line.y - mouse.y) : 1000;
+                const proximityFactor = Math.max(0, 1 - distToMouse / config.spotlightRadius);
 
-        // Connect nearby particles
-        function connectParticles() {
-            for (let a = 0; a < particles.length; a++) {
-                for (let b = a + 1; b < particles.length; b++) {
-                    const dx = particles[a].x - particles[b].x;
-                    const dy = particles[a].y - particles[b].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                ctx.strokeStyle = `rgba(5, 150, 82, ${line.opacity * 0.5 + proximityFactor * 0.5})`;
+                ctx.beginPath();
+                ctx.moveTo(0, line.y);
+                ctx.lineTo(width, line.y);
+                ctx.stroke();
 
-                    if (distance < 100) {
-                        ctx.strokeStyle = `rgba(100, 150, 100, ${1 - distance / 100})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[a].x, particles[a].y);
-                        ctx.lineTo(particles[b].x, particles[b].y);
-                        ctx.stroke();
+                // Draw "detection points" at intersections near mouse
+                if (proximityFactor > 0.1) {
+                    for (let x = 0; x < width; x += config.gridSpacing) {
+                        const distPoint = Math.sqrt(Math.pow(x - mouse.x, 2) + Math.pow(line.y - mouse.y, 2));
+                        if (distPoint < config.spotlightRadius) {
+                            const pointOpacity = (1 - distPoint / config.spotlightRadius) * 0.8;
+                            ctx.fillStyle = `rgba(5, 150, 82, ${pointOpacity})`;
+                            ctx.beginPath();
+                            ctx.arc(x, line.y, 2, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                     }
                 }
-            }
-        }
+            });
 
-        // Draw scanning cursor
-        function drawCursor() {
+            // Draw mouse spotlight (subtle glow)
             if (mouse.x && mouse.y) {
-                // Outer ring
-                ctx.strokeStyle = 'rgba(100, 180, 100, 0.3)';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(mouse.x, mouse.y, mouse.radius, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // Inner crosshair
-                ctx.strokeStyle = 'rgba(100, 180, 100, 0.6)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(mouse.x - 15, mouse.y);
-                ctx.lineTo(mouse.x + 15, mouse.y);
-                ctx.moveTo(mouse.x, mouse.y - 15);
-                ctx.lineTo(mouse.x, mouse.y + 15);
-                ctx.stroke();
-
-                // Center dot
-                ctx.fillStyle = 'rgba(100, 180, 100, 0.8)';
-                ctx.beginPath();
-                ctx.arc(mouse.x, mouse.y, 2, 0, Math.PI * 2);
-                ctx.fill();
+                const gradient = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, config.spotlightRadius);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
             }
         }
 
         // Animation loop
         function animate() {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.fillRect(0, 0, width, height);
-
-            // Draw grid
-            gridLines.forEach(line => line.draw());
-
-            // Update and draw particles
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-
-            // Connect particles
-            connectParticles();
-
-            // Draw cursor
-            drawCursor();
-
+            draw();
             animationId = requestAnimationFrame(animate);
         }
 
-        // Mouse events
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
+        // Parallax Effect for Text
+        function updateParallax() {
+            if (!mouse.x || !mouse.y) return;
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const moveX = (mouse.x - centerX) / centerX;
+            const moveY = (mouse.y - centerY) / centerY;
+
+            const parallaxElements = document.querySelectorAll('[data-parallax]');
+            parallaxElements.forEach(el => {
+                const factor = parseFloat(el.getAttribute('data-parallax')) || 0.05;
+                const x = moveX * config.parallaxStrength * factor * 100;
+                const y = moveY * config.parallaxStrength * factor * 100;
+                el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        }
+
+        // Event Listeners
+        heroSection.addEventListener('mousemove', (e) => {
+            const rect = heroSection.getBoundingClientRect();
             mouse.x = e.clientX - rect.left;
             mouse.y = e.clientY - rect.top;
+            updateParallax();
         });
 
-        canvas.addEventListener('mouseleave', () => {
+        heroSection.addEventListener('mouseleave', () => {
             mouse.x = null;
             mouse.y = null;
+            // Reset parallax
+            const parallaxElements = document.querySelectorAll('[data-parallax]');
+            parallaxElements.forEach(el => {
+                el.style.transform = 'translate(0, 0)';
+            });
         });
 
-        // Touch events for mobile
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
+        // Touch support
+        heroSection.addEventListener('touchmove', (e) => {
+            // e.preventDefault(); // Don't block scroll
+            const rect = heroSection.getBoundingClientRect();
             const touch = e.touches[0];
             mouse.x = touch.clientX - rect.left;
             mouse.y = touch.clientY - rect.top;
         });
 
-        canvas.addEventListener('touchend', () => {
-            mouse.x = null;
-            mouse.y = null;
+        window.addEventListener('resize', () => {
+            resizeCanvas();
         });
 
         // Initialize
         resizeCanvas();
         animate();
-
-        // Resize handler
-        window.addEventListener('resize', () => {
-            cancelAnimationFrame(animationId);
-            resizeCanvas();
-            animate();
-        });
     });
 
 })();
