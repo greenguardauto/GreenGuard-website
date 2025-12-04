@@ -795,43 +795,41 @@ section,
 # Hero Section
 --------------------------------------------------------------*/
 .hero {
-  padding: 120px 0 100px;
-  position: relative;
-  overflow: hidden;
-}
-
-/*--------------------------------------------------------------
-# Hero Section
---------------------------------------------------------------*/
-.hero {
   width: 100%;
   min-height: 100vh;
+  padding: 120px 0 100px;
   position: relative;
-  padding: 120px 0 60px 0;
   display: flex;
   align-items: center;
   overflow: hidden;
-  background-color: var(--surface-color);
+  background: var(--background-color);
 }
 
-.hero #heroCanvas {
+#hero-network {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: 1;
+  /* Behind text */
   pointer-events: auto;
-  /* Allow interaction */
+  /* Allow mouse interaction */
 }
 
 .hero .container {
   position: relative;
   z-index: 2;
-  /* Ensure content is above canvas */
+  /* Above canvas */
   pointer-events: none;
-  /* Let clicks pass through to canvas where possible, but buttons need pointer-events: auto */
+  /* Let clicks pass through to canvas where possible, but text needs to be selectable? Actually text needs to be selectable. */
 }
+
+.hero .container * {
+  pointer-events: auto;
+  /* Re-enable pointer events for content */
+}
+
 
 .hero .hero-content {
   position: relative;
